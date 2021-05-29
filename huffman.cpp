@@ -136,42 +136,80 @@ EncodingTreeNode* createExampleTree() {
     EncodingTreeNode* charR = new EncodingTreeNode('R');
     EncodingTreeNode* charS = new EncodingTreeNode('S');
     EncodingTreeNode* charE = new EncodingTreeNode('E');
-    EncodingTreeNode* tree = new EncodingTreeNode(0, 0);
-    tree->zero = charT;
-    tree->one->one = charE;
-    tree->one->zero->zero = charR;
-    tree->one->zero->one = charS;
-    return tree;
+    EncodingTreeNode* parRS = new EncodingTreeNode(charR, charS);
+    EncodingTreeNode* parE = new EncodingTreeNode(parRS, charE);
+    EncodingTreeNode* par = new EncodingTreeNode(charT, parE);
+    return par;
 }
 
 void deallocateTree(EncodingTreeNode* t) {
-    if (t->zero == nullptr && t->one == nullptr)
-        return;
-    else {
-        deallocateTree(t->zero);
-        deallocateTree(t->one);
-    }
-
+      if (t->isLeaf() == false) {
+        if (t->zero != nullptr) deallocateTree(t->zero);
+        if (t->one != nullptr) deallocateTree(t->one);
+      }
+      delete t;
 }
 
 bool areEqual(EncodingTreeNode* a, EncodingTreeNode* b) {
-    /* TODO: Implement this utility function needed for testing. */
-    return false;
+    if (a->isLeaf() == true && b->isLeaf() != true)
+        return false;
+    if (a->isLeaf() != true && b->isLeaf() == true)
+        return false;
+    else if (a->isLeaf() == true && b->isLeaf() == true) {
+        if (a->getChar() != b->getChar()) {
+            return false;
+        }
+    }
+    else {
+        if (a->zero != nullptr && b->zero != nullptr)
+            areEqual(a->zero, b->zero);
+        if (a->one != nullptr && b->one != nullptr)
+            areEqual(a->one, b->one);
+        if (a->zero == nullptr && b->zero != nullptr)
+            return false;
+        if (a->zero != nullptr && b->zero == nullptr)
+            return false;
+        if (a->one == nullptr && b->one != nullptr)
+            return false;
+        if (a->one != nullptr && b->one == nullptr)
+            return false;
+    }
+    return true;
 }
 
 /* * * * * * Test Cases Below This Point * * * * * */
 
-/* TODO: Write your own student tests. */
-
-
-
-
-
-
-
-
-
-/* * * * * Provided Tests Below This Point * * * * */
+STUDENT_TEST("areEqual check") {
+    EncodingTreeNode* tree0 = createExampleTree();
+    EncodingTreeNode* tree1 = createExampleTree();
+    // Compare both equal trees
+    EXPECT(areEqual(tree0, tree1));
+    EncodingTreeNode* charT = new EncodingTreeNode('T');
+    EncodingTreeNode* single0 = new EncodingTreeNode(charT, 0);
+    EncodingTreeNode* empty = new EncodingTreeNode(0, 0);
+    // Compare singleton tree to empty tree
+    EXPECT(!areEqual(single0, empty));
+    EncodingTreeNode* charT1 = new EncodingTreeNode('T');
+    EncodingTreeNode* single1 = new EncodingTreeNode(charT1, 0);
+    // Compare singleton trees
+    EXPECT(areEqual(single1, single0));
+    // Compare larger tree to singleton tree
+    EXPECT(!areEqual(tree0, single0));
+    EncodingTreeNode* charE = new EncodingTreeNode('E');
+    EncodingTreeNode* charR = new EncodingTreeNode('R');
+    EncodingTreeNode* charS = new EncodingTreeNode('S');
+    EncodingTreeNode* parRS = new EncodingTreeNode(charR, charS);
+    EncodingTreeNode* parE = new EncodingTreeNode(parRS, charE);
+    EncodingTreeNode* subTree = new EncodingTreeNode(0, parE);
+    // Compare large tree to entire right branch
+    EXPECT(!areEqual(tree0, subTree));
+    deallocateTree(tree0);
+    deallocateTree(tree1);
+    deallocateTree(single0);
+    deallocateTree(single1);
+    deallocateTree(empty);
+    deallocateTree(subTree);
+}
 
 STUDENT_TEST("decodeText, small example encoding tree") {
     EncodingTreeNode* tree = createExampleTree(); // see diagram above
@@ -179,6 +217,8 @@ STUDENT_TEST("decodeText, small example encoding tree") {
 
     deallocateTree(tree);
 }
+
+/* * * * * Provided Tests Below This Point * * * * */
 
 PROVIDED_TEST("decodeText, small example encoding tree") {
     EncodingTreeNode* tree = createExampleTree(); // see diagram above
