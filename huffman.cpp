@@ -19,8 +19,26 @@ using namespace std;
  * your implementation.
  */
 string decodeText(EncodingTreeNode* tree, Queue<Bit>& messageBits) {
-    /* TODO: Implement this function. */
-    return "";
+    string text = "";
+    EncodingTreeNode* temp = tree;
+    int messageSize = messageBits.size();
+    for (int i = 0; i < messageSize; i++) {
+        Bit bitValue = messageBits.dequeue();
+        if (bitValue == 1) {
+            temp = temp->one;
+            if (temp->isLeaf()) {
+                text += temp->getChar();
+                temp = tree;
+            }
+        } else {
+            temp = temp->zero;
+            if (temp->isLeaf()) {
+                text += temp->getChar();
+                temp = tree;
+            }
+        }
+    }
+    return text;
 }
 
 /**
@@ -33,8 +51,22 @@ string decodeText(EncodingTreeNode* tree, Queue<Bit>& messageBits) {
  * your implementation.
  */
 EncodingTreeNode* unflattenTree(Queue<Bit>& treeShape, Queue<char>& treeLeaves) {
-    /* TODO: Implement this function. */
-    return nullptr;
+    int treeSize = treeShape.size();
+    EncodingTreeNode* cur;
+    if (treeSize > 0) {
+        treeShape.dequeue();
+        cur = new EncodingTreeNode(0, 0);
+    }
+    char leftChild = 'l';
+    char rightChild = 'r';
+    for (int i = 0; i < treeSize - 1; i++) {
+        Bit nextValue = treeShape.dequeue();
+        if (nextValue == 1) {
+            if (cur->zero == nullptr)
+                cur = new EncodingTreeNode(0, 0);
+        }
+
+    }
 }
 
 /**
